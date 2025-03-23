@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profil o'zgartirish</title>
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/226/226235.png" type="image/png">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #f0f2f5;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            color: #333;
+            position: relative;
+            overflow: hidden;
+        }
+        header {
+            background-color: #fff;
+            padding: 15px 20px;
+            border-bottom: 1px solid #e6ecf0;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 10;
+        }
+        header h2 {
+            font-size: clamp(1.2rem, 4vw, 1.8rem);
+            color: #1da1f2;
+            transition: color 0.3s ease;
+        }
+        header h2:hover {
+            color: #0d8ddb;
+        }
+        .background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(29, 161, 242, 0.1) 10%, transparent 10%);
+            background-size: 20px 20px;
+            z-index: 1;
+            filter: blur(3px);
+            opacity: 0.8;
+        }
+        .container {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            max-width: 500px;
+            width: 90%;
+            margin: 80px auto 60px;
+            position: relative;
+            z-index: 5;
+        }
+        form {
+            background-color: #fff;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            transition: transform 0.3s ease;
+        }
+        form:hover {
+            transform: translateY(-1px);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            font-size: 1rem;
+            color: #555;
+            margin-bottom: 8px;
+            /* font-weight: bold; */
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e6ecf0;
+            border-radius: 8px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        input:focus {
+            border-color: #1da1f2;
+            box-shadow: 0 0 5px rgba(29, 161, 242, 0.5);
+        }
+        .error {
+            color: #e0245e;
+            font-size: 0.85rem;
+            margin-top: 5px;
+        }
+        .non-field-error {
+            color: #e0245e;
+            font-size: 0.9rem;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        button {
+            padding: 12px 20px;
+            background-color: #1da1f2;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            width: 100%;
+        }
+        button:hover {
+            background-color: #0d8ddb;
+            /* transform: scale(1.05); */
+        }
+        .back-link {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .back-link a {
+            color: #1da1f2;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.3s ease;
+        }
+        .back-link a:hover {
+            color: #0d8ddb;
+            text-decoration: underline;
+        }
+        @media (max-width: 600px) {
+            header {
+                padding: 10px 15px;
+            }
+            header h2 {
+                font-size: 1.2rem;
+            }
+            .container {
+                margin: 60px auto 50px;
+                padding: 15px;
+            }
+            form {
+                padding: 20px;
+            }
+            label, input, button {
+                font-size: 0.9rem;
+            }
+            .error {
+                font-size: 0.8rem;
+            }
+            .non-field-error {
+                font-size: 0.85rem;
+            }
+            .back-link a {
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="background"></div>
+    <header>
+        <h2>Y</h2>
+    </header>
+    <div class="container">
+        <form method="post">
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+                <div class="non-field-error">{{ form.non_field_errors }}</div>
+            {% endif %}
+            <div class="form-group">
+                <label for="{{ form.username.id_for_label }}">Foydalanuvchi nomi:</label>
+                {{ form.username }}
+                {% if form.username.errors %}
+                    <div class="error">{{ form.username.errors }}</div>
+                {% endif %}
+            </div>
+            <div class="form-group">
+                <label for="{{ form.email.id_for_label }}">Elektron pochta:</label>
+                {{ form.email }}
+                {% if form.email.errors %}
+                    <div class="error">{{ form.email.errors }}</div>
+                {% endif %}
+            </div>
+            <div class="form-group">
+                <label for="{{ form.password.id_for_label }}">Yangi parol (ixtiyoriy):</label>
+                {{ form.password }}
+                {% if form.password.errors %}
+                    <div class="error">{{ form.password.errors }}</div>
+                {% endif %}
+            </div>
+            <div class="form-group">
+                <label for="{{ form.confirm_password.id_for_label }}">Yangi parolni tasdiqlash:</label>
+                {{ form.confirm_password }}
+                {% if form.confirm_password.errors %}
+                    <div class="error">{{ form.confirm_password.errors }}</div>
+                {% endif %}
+            </div>
+            <button type="submit">O'zgarishlarni saqlash</button>
+        </form>
+        <div class="back-link">
+            <a href="{% url 'interface' %}">Dashbordga qaytish</a>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html>
-  {% load static %}
+{% load static %}
 <head>
 <title>NewsFeed | Pages | Single Page</title>
 <meta charset="utf-8">
@@ -15,16 +15,43 @@
 <link rel="stylesheet" type="text/css" href="{% static 'assets/css/jquery.fancybox.css' %}">
 <link rel="stylesheet" type="text/css" href="{% static 'assets/css/theme.css' %}">
 <link rel="stylesheet" type="text/css" href="{% static 'assets/css/style.css' %}">
-<!--[if lt IE 9]>
-<script src="../assets/js/html5shiv.min.js"></script>
-<script src="../assets/js/respond.min.js"></script>
-<![endif]-->
+<style>
+.comment {
+  border-bottom: 1px solid #ddd;
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  position: relative; /* Make sure the comment item is a positioning context */
+}
+
+.comment-actions {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+.comment-actions button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  margin-left: 5px;
+  font-size: 14px; /* Adjust as needed */
+}
+
+.comment-actions button:hover {
+  color: #007bff; /* Highlight on hover */
+}
+
+.edit-form {
+  display: none; /* Initially hide the edit form */
+  margin-top: 10px;
+}
+.edit-form textarea {
+    width: 100%;
+}
+</style>
 </head>
 <body>
-<!-- <div id="preloader">
-  <div id="status">&nbsp;</div>
-</div>
-<a class="scrollToTop" href="#"><i class="fa fa-angle-up"></i></a> -->
 <div class="container">
   <header id="header">
     <div class="row">
@@ -35,6 +62,12 @@
               <li><a href="{% url 'index' %}">Home</a></li>
               <li><a href="{% url 'about' %}">About</a></li>
               <li><a href="{% url 'contact' %}">Contact</a></li>
+              {% if user.username %}
+              <li><a href="{% url 'interface' %}">Dashboard</a></li>
+              {% else %}
+              <li><a href="{% url 'signup' %}">Sign up</a></li>
+              <li><a href="{% url 'login' %}">Log in</a></li>
+              {% endif %}
             </ul>
           </div>
           <div class="header_top_right">
@@ -138,6 +171,48 @@
                 {% endfor %}
               </ul>
             </div>
+            <div class="comments-section">
+              <h2>Comments:</h2>
+              <ul id="comments-list">
+                {% for c in comments %}
+                <li class="comment" data-comment-id="{{ c.id }}">
+                  <div class="comment-author">
+                    <span class="author-name" style="color: rgb(14, 13, 14); background-color: rgb(162, 221, 35);">{{ c.user.username }}</span>
+                    <span class="comment-date" style="color: rgb(35, 34, 35); background-color: aqua;">{{ c.created_at }}</span>
+                    {% if user == c.user %}
+                    <div class="comment-actions">
+                      <button class="edit-comment-btn">Edit</button>
+                      <button class="delete-comment-btn">Delete</button>
+                    </div>
+                    {% endif %}
+                  </div>
+                  <div class="comment-content">{{ c.writing }}</div>
+                  <form method="post" action="{% url 'edit_comment' c.id %}" class="edit-form">
+                    {% csrf_token %}
+                    <div class="form-group">
+                      <textarea class="form-control" name="writing" rows="3" required>{{ c.writing }}</textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-sm">Save</button>
+                    <button type="button" class="btn btn-secondary btn-sm cancel-edit-btn">Cancel</button>
+                  </form>
+                </li>
+                {% empty %}
+                <div class="comment-author" style="color: blueviolet; background-color: aqua;">
+                  <span class="author-name">No comment yet</span>
+                </div>
+                {% endfor %}
+              </ul>
+              <div id="comment-form">
+                <h3>Leave a Comment:</h3>
+                <form method="post" action="{% url 'detail' habar0.id %}">
+                  {% csrf_token %}
+                  <div class="form-group">
+                    <textarea class="form-control" id="comment" name="writing" rows="5" required></textarea>
+                  </div>
+                  <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -231,7 +306,7 @@
               <li><a href="#">Blog</a></li>
               <li><a href="#">Rss Feed</a></li>
               <li><a href="#">Login</a></li>
-              <li><a href="#">Life &amp; Style</a></li>
+              <li><a href="#">Life & Style</a></li>
             </ul>
           </div>
         </aside>
@@ -261,14 +336,14 @@
             <h2>Contact</h2>
             <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua Lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
             <address>
-            Perfect News,1238 S . 123 St.Suite 25 Town City 3333,USA Phone: 123-326-789 Fax: 123-546-567
+              Perfect News,1238 S . 123 St.Suite 25 Town City 3333,USA Phone: 123-326-789 Fax: 123-546-567
             </address>
           </div>
         </div>
       </div>
     </div>
     <div class="footer_bottom">
-      <p class="copyright">Copyright &copy; 2045 <a href="index.html">NewsFeed</a></p>
+      <p class="copyright">Copyright © 2045 <a href="index.html">NewsFeed</a></p>
       <p class="developer">Developed By Wpfreeware</p>
     </div>
   </footer>
@@ -281,5 +356,82 @@
 <script src="{% static 'assets/js/jquery.newsTicker.min.js' %}"></script> 
 <script src="{% static 'assets/js/jquery.fancybox.pack.js' %}"></script> 
 <script src="{% static 'assets/js/custom.js' %}"></script>
+<script>
+$(document).ready(function() {
+    // Show edit form when Edit button is clicked
+    $('.edit-comment-btn').click(function() {
+        const commentItem = $(this).closest('.comment');
+        const commentContent = commentItem.find('.comment-content');
+        const editForm = commentItem.find('.edit-form');
+        
+        commentContent.hide();
+        editForm.show();
+    });
+
+    // Hide edit form when Cancel button is clicked
+    $('.cancel-edit-btn').click(function() {
+        const commentItem = $(this).closest('.comment');
+        const commentContent = commentItem.find('.comment-content');
+        const editForm = commentItem.find('.edit-form');
+
+        editForm.hide();
+        commentContent.show();
+    });
+
+    // Handle edit form submission via AJAX
+    $('.edit-form').submit(function(e) {
+        e.preventDefault(); // Prevent default form submission
+        const form = $(this);
+        const commentItem = form.closest('.comment');
+        const commentId = commentItem.data('comment-id');
+
+        $.ajax({
+            url: '/editcomment/' + commentId + '/',
+            type: 'POST',
+            data: form.serialize(),
+            dataType: 'json',
+            success: function(response) {
+                if (response.status === 'success') {
+                    commentItem.find('.comment-content').text(form.find('textarea').val());
+                    commentItem.find('.edit-form').hide();
+                    commentItem.find('.comment-content').show();
+                    window.location.href = '/detail/' + response.post_id + '/';
+                } else {
+                    alert('Error editing comment: ' + JSON.stringify(response.errors));
+                }
+            },
+            error: function() {
+                alert('Error submitting edit form.');
+            }
+        });
+    });
+
+    // Handle delete button click
+    $('.delete-comment-btn').click(function() {
+        const commentId = $(this).closest('.comment').data('comment-id');
+        const commentItem = $(this).closest('.comment');
+
+        if (confirm("Are you sure you want to delete this comment?")) {
+            $.ajax({
+                url: '/deletecomment/' + commentId + '/',
+                type: 'POST',
+                data: {
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                },
+                success: function(response) {
+                    if (response.status === 'success') {
+                        commentItem.remove();
+                    } else {
+                        alert('Failed to delete comment.');
+                    }
+                },
+                error: function() {
+                    alert('Error deleting comment.');
+                }
+            });
+        }
+    });
+});
+</script>
 </body>
 </html>

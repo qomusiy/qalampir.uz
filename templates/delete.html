@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Profilni O'chirish</title>
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/226/226235.png" type="image/png">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #f0f2f5;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            color: #333;
+            position: relative;
+            overflow: hidden;
+        }
+        header {
+            background-color: #fff;
+            padding: 15px 20px;
+            border-bottom: 1px solid #e6ecf0;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 10;
+        }
+        header h2 {
+            font-size: clamp(1.2rem, 4vw, 1.8rem);
+            color: #1da1f2;
+            transition: color 0.3s ease;
+        }
+        header h2:hover {
+            color: #0d8ddb;
+        }
+        .background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(29, 161, 242, 0.1) 10%, transparent 10%);
+            background-size: 20px 20px;
+            z-index: 1;
+            filter: blur(3px);
+            opacity: 0.8;
+        }
+        .container {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            max-width: 450px;
+            width: 90%;
+            margin: 80px auto;
+            position: relative;
+            z-index: 5;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .confirm-box {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        .confirm-box:hover {
+            transform: translateY(-1px);
+        }
+        h3 {
+            font-size: 1.5rem;
+            color: #333;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        .warning {
+            color: #e0245e;
+            margin-bottom: 25px;
+            font-size: 1rem;
+            line-height: 1.5;
+            font-weight: 500;
+        }
+        form {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+        button, .cancel {
+            padding: 12px 25px;
+            font-size: 1rem;
+            font-weight: 500;
+            text-decoration: none;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: transform 0.2s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        button {
+            background-color: #e0245e;
+            box-shadow: 0 2px 10px rgba(224, 36, 94, 0.3);
+        }
+        button:hover {
+            background-color: #c81e50;
+            /* transform: scale(1.05); */
+            box-shadow: 0 4px 15px rgba(224, 36, 94, 0.5);
+        }
+        .cancel {
+            background-color: #1da1f2;
+            box-shadow: 0 2px 10px rgba(29, 161, 242, 0.3);
+        }
+        .cancel:hover {
+            background-color: #0d8ddb;
+            /* transform: scale(1.05); */
+            box-shadow: 0 4px 15px rgba(29, 161, 242, 0.5);
+        }
+        @media (max-width: 600px) {
+            header {
+                padding: 10px 15px;
+            }
+            header h2 {
+                font-size: 1.2rem;
+            }
+            .container {
+                margin: 60px auto;
+                padding: 15px;
+            }
+            .confirm-box {
+                padding: 20px;
+            }
+            h3 {
+                font-size: 1.3rem;
+            }
+            .warning {
+                font-size: 0.9rem;
+            }
+            button, .cancel {
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
+            form {
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="background"></div>
+    <header>
+        <h2>P</h2>
+    </header>
+    <div class="container">
+        <div class="confirm-box">
+            <h3>Profilni O'chirish</h3>
+            <p class="warning">Bu profilni o'chirishga ishonchingiz komilmi? Buni ortga qaytarib bo'lmaydi.</p>
+            <form method="post">
+                {% csrf_token %}
+                <button type="submit">Ha, O'chirish</button>
+                <a href="{% url 'interface' %}" class="cancel">Orqaga Qaytish</a>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

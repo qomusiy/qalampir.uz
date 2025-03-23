@@ -35,6 +35,12 @@
               <li><a href="{% url 'index' %}">Home</a></li>
               <li><a href="{% url 'about' %}">About</a></li>
               <li><a href="">Contact</a></li>
+              {% if user.username %}
+              <li><a href="{% url 'interface' %}">Dashbord</a></li>
+              {% else %}
+              <li><a href="{% url 'signup' %}">Sing up</a></li>
+              <li><a href="{% url 'login' %}">Log in</a></li>
+              {% endif %}
             </ul>
           </div>
           <div class="header_top_right">

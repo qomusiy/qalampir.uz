@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Kirish</title>
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/226/226235.png" type="image/png">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #f0f2f5;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            color: #333;
+        }
+        header {
+            background-color: #fff;
+            padding: 15px;
+            border-bottom: 1px solid #e6ecf0;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        header h2 {
+            font-size: clamp(1.2rem, 4vw, 1.8rem);
+            color: #1da1f2;
+            transition: color 0.3s ease;
+        }
+        header h2:hover {
+            color: #0d8ddb;
+        }
+        .form-container {
+            max-width: 400px;
+            width: 90%; /* Responsive width */
+            margin: 50px auto;
+            padding: 25px;
+            background-color: #fff;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+        .form-container:hover {
+            transform: translateY(-1px); /* Subtle lift on hover */
+        }
+        .form-container h3 {
+            font-size: 1.5rem;
+            color: #1da1f2;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px; /* Better spacing */
+        }
+        label {
+            font-size: 0.9rem;
+            color: #555;
+            margin-bottom: 5px;
+        }
+        input {
+            padding: 12px;
+            border: 1px solid #e6ecf0;
+            border-radius: 8px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        input:focus {
+            border-color: #1da1f2;
+            box-shadow: 0 0 5px rgba(29, 161, 242, 0.5);
+        }
+        .time {
+            font-size: 0.85rem;
+            color: #ea2d2d;
+            margin-top: -10px;
+            margin-bottom: 10px;
+        }
+        .button {
+            padding: 12px 20px;
+            background-color: #1da1f2;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+        .button:hover {
+            background-color: #0d8ddb;
+            /* transform: scale(1.05); */
+        }
+        p {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.9rem;
+        }
+        p a {
+            color: #1da1f2;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        p a:hover {
+            color: #0d8ddb;
+            text-decoration: underline;
+        }
+        /* Background Pattern */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(29, 161, 242, 0.1) 10%, transparent 10%);
+            background-size: 20px 20px;
+            z-index: -1;
+            opacity: 0.5;
+        }
+        /* Responsive Design */
+        @media (max-width: 600px) {
+            .form-container {
+                margin: 20px auto;
+                padding: 20px;
+            }
+            header h2 {
+                font-size: 1.2rem;
+            }
+            .form-container h3 {
+                font-size: 1.2rem;
+            }
+            input, .button {
+                font-size: 0.9rem;
+            }
+            p {
+                font-size: 0.85rem;
+            }
+        }
+        @media (min-width: 601px) and (max-width: 900px) {
+            .form-container {
+                width: 80%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h2>News Feed</h2>
+    </header>
+    <div class="form-container">
+        <h3>Profilga kirish</h3>
+        <form method="post">
+            {% csrf_token %}
+            <label for="{{ form.username.id_for_label }}">Foydalanuvchi ismi:</label>
+            {{ form.username }}
+            <span class="time">{{ form.username.errors }}</span>
+
+            <label for="{{ form.password.id_for_label }}">Parol:</label>
+            {{ form.password }}
+            <span class="time">{{ passerror }}</span>
+
+            <button type="submit" class="button">Kirish</button>
+        </form>
+        <p>Profilingiz yo'qmi? 
+            <a href="{% url 'signup' %}">Ro'yxatdan o'tish</a>
+            <br>
+            <a href="{% url 'index' %}">Orqaga</a>
+        </p>
+    </div>
+</body>
+</html>
