@@ -9,6 +9,7 @@ urlpatterns = [
     path('', index, name='index'),  
     path('detail/<int:pk>/', detail, name='detail'),
     path('category/<int:pk>/', category_detail, name='category'),
+    path('likecomment/<int:pk>/', like_comment, name='like_comment'),
     path('contact/', contact, name='contact'),  
     path('about/', about, name='about'),
     path('interface/', interface, name='interface'),

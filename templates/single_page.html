@@ -20,34 +20,44 @@
   border-bottom: 1px solid #ddd;
   margin-bottom: 10px;
   padding-bottom: 10px;
-  position: relative; /* Make sure the comment item is a positioning context */
+  position: relative;
 }
-
 .comment-actions {
   position: absolute;
   top: 0;
   right: 0;
 }
-
 .comment-actions button {
   background: none;
   border: none;
   cursor: pointer;
   padding: 0;
   margin-left: 5px;
-  font-size: 14px; /* Adjust as needed */
+  font-size: 14px;
 }
-
 .comment-actions button:hover {
-  color: #007bff; /* Highlight on hover */
+  color: #007bff;
 }
-
 .edit-form {
-  display: none; /* Initially hide the edit form */
+  display: none;
   margin-top: 10px;
 }
 .edit-form textarea {
     width: 100%;
+}
+.like-section {
+  margin-top: 5px;
+  display: flex;
+  align-items: center;
+}
+.like-btn {
+  font-size: 12px;
+  padding: 2px 8px;
+  margin-right: 10px;
+}
+.like-count {
+  font-size: 12px;
+  color: #555;
 }
 </style>
 </head>
@@ -175,22 +185,35 @@
               <h2>Comments:</h2>
               <ul id="comments-list">
                 {% for c in comments %}
-                <li class="comment" data-comment-id="{{ c.id }}">
+                <li class="comment" data-comment-id="{{ c.comment.id }}">
                   <div class="comment-author">
-                    <span class="author-name" style="color: rgb(14, 13, 14); background-color: rgb(162, 221, 35);">{{ c.user.username }}</span>
-                    <span class="comment-date" style="color: rgb(35, 34, 35); background-color: aqua;">{{ c.created_at }}</span>
-                    {% if user == c.user %}
+                    <span class="author-name" style="color: rgb(14, 13, 14); background-color: rgb(162, 221, 35);">{{ c.comment.user.username }}</span>
+                    <span class="comment-date" style="color: rgb(35, 34, 35); background-color: aqua;">Sent: {{ c.comment.created_at }}</span>
+                    {% if c.comment.updated_at %}
+                    <span class="comment-date" style="color: rgb(35, 34, 35); background-color: rgb(126, 255, 141);">Edited: {{ c.comment.updated_at }}</span>
+                    {% endif %}
+                    {% if user == c.comment.user %}
                     <div class="comment-actions">
-                      <button class="edit-comment-btn">Edit</button>
-                      <button class="delete-comment-btn">Delete</button>
+                      <button class="edit-comment-btn" style="background-color: #91ebff;">Edit</button>
+                      <button class="delete-comment-btn" style="background-color: #ff9393;">Delete</button>
                     </div>
                     {% endif %}
                   </div>
-                  <div class="comment-content">{{ c.writing }}</div>
-                  <form method="post" action="{% url 'edit_comment' c.id %}" class="edit-form">
+                  <div class="comment-content">{{ c.comment.writing }}</div>
+                  <div class="like-section">
+                    {% if user.is_authenticated %}
+                      <button class="like-btn btn {% if c.user_liked %}btn-danger{% else %}btn-primary{% endif %}" data-comment-id="{{ c.comment.id }}">
+                        {% if c.user_liked %}Unlike{% else %}Like{% endif %}
+                      </button>
+                    {% else %}
+                      <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-primary btn-sm">Log in to Like</a>
+                    {% endif %}
+                    <span class="like-count">{{ c.like_count }} Like{{ c.like_count|pluralize }}</span>
+                  </div>
+                  <form method="post" action="{% url 'edit_comment' c.comment.id %}" class="edit-form">
                     {% csrf_token %}
                     <div class="form-group">
-                      <textarea class="form-control" name="writing" rows="3" required>{{ c.writing }}</textarea>
+                      <textarea class="form-control" name="writing" rows="3" required>{{ c.comment.writing }}</textarea>
                     </div>
                     <button type="submit" class="btn btn-primary btn-sm">Save</button>
                     <button type="button" class="btn btn-secondary btn-sm cancel-edit-btn">Cancel</button>
@@ -380,7 +403,7 @@ $(document).ready(function() {
 
     // Handle edit form submission via AJAX
     $('.edit-form').submit(function(e) {
-        e.preventDefault(); // Prevent default form submission
+        e.preventDefault();
         const form = $(this);
         const commentItem = form.closest('.comment');
         const commentId = commentItem.data('comment-id');
@@ -430,6 +453,37 @@ $(document).ready(function() {
                 }
             });
         }
+    });
+
+    // Handle like button click
+    $('.like-btn').click(function() {
+        const commentId = $(this).data('comment-id');
+        const btn = $(this);
+        const likeCountSpan = btn.siblings('.like-count');
+
+        $.ajax({
+            url: '/likecomment/' + commentId + '/',
+            type: 'POST',
+            data: {
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            },
+            dataType: 'json',
+            success: function(response) {
+                if (response.status === 'success') {
+                    if (response.liked) {
+                        btn.text('Unlike').removeClass('btn-primary').addClass('btn-danger');
+                    } else {
+                        btn.text('Like').removeClass('btn-danger').addClass('btn-primary');
+                    }
+                    likeCountSpan.text(response.like_count + ' Like' + (response.like_count !== 1 ? 's' : ''));
+                } else {
+                    alert('Error liking comment.');
+                }
+            },
+            error: function() {
+                alert('Error processing like request.');
+            }
+        });
     });
 });
 </script>

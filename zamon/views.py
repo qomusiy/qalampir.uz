@@ -3,8 +3,9 @@ from django.http import JsonResponse, HttpResponseForbidden
 from habar.models import Habar, Bolim, Sponsor, Contact
 from habar.forms import ContactForm, CommentForm
 from django.contrib import messages
-from user.models import Comment
+from user.models import Comment, CommentLike
 from django.views.decorators.http import require_POST
+from django.contrib.auth.decorators import login_required
 import datetime
 
 def get_date():
@@ -49,16 +50,31 @@ def detail(request, pk):
     if request.method == 'POST':
         form = CommentForm(request.POST)
         if form.is_valid():
-            comment = form.save(commit=False)
-            comment.user = request.user
-            comment.post = habar0
-            comment.save()
-            return redirect('detail', pk=habar0.id)
+            try:
+                comment = form.save(commit=False)
+                comment.user = request.user
+                comment.post = habar0
+                comment.save()
+                return redirect('detail', pk=habar0.id)
+            except:
+                return redirect('login')
     else:
         form = CommentForm()
 
     habar0.view += 1
     habar0.save()
+
+    # Add like data for each comment
+    comment_data = []
+    for comment in comments:
+        user_liked = request.user.is_authenticated and CommentLike.objects.filter(user=request.user, comment=comment).exists()
+        like_count = comment.likes.count()
+        comment_data.append({
+            'comment': comment,
+            'user_liked': user_liked,
+            'like_count': like_count,
+        })
+
     context = {
         'ctg': get_category(),
         'habar0': habar0,
@@ -68,11 +84,32 @@ def detail(request, pk):
         'sponsor': sponsor,
         'habar': Habar.objects.all().order_by('-date'),
         'bolim': get_category(),
-        'comments': comments,
+        'comments': comment_data,  # Updated to use comment_data
         'form': form,
         'user': request.user,
     }
     return render(request, 'single_page.html', context)
+
+@login_required
+@require_POST
+def like_comment(request, pk):
+    comment = get_object_or_404(Comment, id=pk)
+    user = request.user
+
+    # Check if the user already liked the comment
+    like = CommentLike.objects.filter(user=user, comment=comment).first()
+    
+    if like:
+        # Unlike: Remove the like
+        like.delete()
+        liked = False
+    else:
+        # Like: Add a new like
+        CommentLike.objects.create(user=user, comment=comment)
+        liked = True
+
+    like_count = comment.likes.count()
+    return JsonResponse({'status': 'success', 'liked': liked, 'like_count': like_count})
 
 def contact(request):
     if request.method == "POST":
@@ -126,6 +163,8 @@ def edit_comment(request, pk):
     
     form = CommentForm(request.POST, instance=comment)
     if form.is_valid():
+        f = form.save(commit=False)
+        f.updated_at = get_date()
         form.save()
         return JsonResponse({'status': 'success', 'post_id': comment.post.id})  # Add post_id to response
     return JsonResponse({'status': 'error', 'errors': form.errors})
